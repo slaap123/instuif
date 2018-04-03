@@ -4,9 +4,12 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Stack;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import nl.phanos.trainignspakkenwedstrijd.Main.parComparator;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -23,7 +26,7 @@ import org.jsoup.select.Elements;
 
 public class Main
 {
-  private Stack<String[]> table;
+  private ArrayList<String[]> table;
   
   public static void main(String[] args)
   {
@@ -37,7 +40,7 @@ public class Main
   }
   
   public void readTable() {
-    table = new Stack();
+    table = new ArrayList();
     try {
       Document doc = Jsoup.connect("https://docs.google.com/spreadsheets/d/e/2PACX-1vSJW25z0CAb2FZLZFtDG4jhu-tblNJ6_Cykitl0vKD5Ay5UmL_aL0R4Wo5VPFF-wxxtzMWTsa8W8ebo/pubhtml?gid=2095698778single=true&headers=false&chrome=false").get();
       Elements rows = doc.select(".grid-container tbody tr");
@@ -50,7 +53,7 @@ public class Main
           tr[(colI++)] = "";
         }
         if (!"()".equals(tr[2].trim())) {
-          table.push(tr);
+          table.add(tr);
         }
         rowI++;
       }
@@ -61,6 +64,7 @@ public class Main
   }
   
   public void writeTable() {
+      table.sort(new parComparator());
     BufferedWriter writer = null;
     try {
       for (int i = 0; i < Math.ceil(table.size() / 6.0D); i++) {
@@ -81,4 +85,11 @@ public class Main
       }
     }
   }
+  static class parComparator implements Comparator<String[]>
+ {
+     public int compare(String[] line1,String[] line2)
+     {
+         return line1[2].compareTo(line2[2]);
+     }
+ }
 }
